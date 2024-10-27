@@ -10521,7 +10521,8 @@ struct llm_build_context {
         struct ggml_tensor * KQ_mask = build_inp_KQ_mask();
 
         const float kq_scale = hparams.f_attention_scale == 0.0f ? 1.0f/sqrtf(float(n_embd_head)) : hparams.f_attention_scale;
-        for (int il = 0; il < n_layer; ++il) {
+        // Build ggml graph with 3 layers.
+        for (int il = 0; il < n_layer && il < 3; ++il) {
             struct ggml_tensor * inpSA = inpL;
 
             // norm
@@ -10658,6 +10659,11 @@ struct llm_build_context {
         cb(cur, "result_output", -1);
 
         ggml_build_forward_expand(gf, cur);
+
+        // Dump ggml graph and exit.
+        ggml_graph_print(gf);
+        ggml_graph_dump_dot(gf, NULL, "lamma-3-layer.dot");
+        exit(1);
 
         return gf;
     }
@@ -12575,7 +12581,8 @@ struct llm_build_context {
         // KQ_mask (mask for 1 head, it will be broadcasted to all heads)
         struct ggml_tensor * KQ_mask_swa = build_inp_KQ_mask_swa();
 
-        for (int il = 0; il < n_layer; ++il) {
+        // Build ggml graph with 3 layers.
+        for (int il = 0; il < n_layer && il < 3; ++il) {
             auto residual = inpL;
 
             // self-attention
@@ -12680,6 +12687,11 @@ struct llm_build_context {
         cb(cur, "result_output", -1);
 
         ggml_build_forward_expand(gf, cur);
+
+        // Dump ggml graph and exit.
+        ggml_graph_print(gf);
+        ggml_graph_dump_dot(gf, NULL, "phi3-3-layer.dot");
+        exit(1);
 
         return gf;
     }
@@ -13726,7 +13738,8 @@ struct llm_build_context {
         struct ggml_tensor * KQ_mask     = build_inp_KQ_mask(true);
         struct ggml_tensor * KQ_mask_swa = build_inp_KQ_mask_swa(true);
 
-        for (int il = 0; il < n_layer; ++il) {
+        // Build ggml graph with 3 layers.
+        for (int il = 0; il < n_layer && il < 3; ++il) {
             // (il % 2) layers use SWA
             struct ggml_tensor * KQ_mask_l = (il % 2 == 0) ? KQ_mask_swa : KQ_mask;
 
@@ -13836,6 +13849,11 @@ struct llm_build_context {
         cb(cur, "result_output", -1);
 
         ggml_build_forward_expand(gf, cur);
+
+        // Dump ggml graph and exit.
+        ggml_graph_print(gf);
+        ggml_graph_dump_dot(gf, NULL, "gemma2-3-layer.dot");
+        exit(1);
 
         return gf;
     }
